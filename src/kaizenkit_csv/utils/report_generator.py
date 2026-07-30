@@ -1,4 +1,45 @@
 from datetime import datetime
+import os
+
+
+
+def create_report_path(
+    csv_path
+):
+
+    report_dir = os.path.join(
+        os.path.dirname(csv_path),
+        "reports"
+    )
+
+
+    os.makedirs(
+        report_dir,
+        exist_ok=True
+    )
+
+
+    base_name = os.path.splitext(
+        os.path.basename(csv_path)
+    )[0]
+
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+
+    report_name = (
+        f"{base_name}_report_{timestamp}.html"
+    )
+
+
+    return os.path.join(
+        report_dir,
+        report_name
+    )
+
+
 
 
 
@@ -132,7 +173,6 @@ KaizenKit CSV Quality Report
 
 
 
-
 <h2>
 データ品質
 </h2>
@@ -187,9 +227,8 @@ KaizenKit CSV Quality Report
 
 </tr>
 
-
-
 """
+
 
 
     for item in columns:
@@ -247,6 +286,7 @@ KaizenKit CSV Quality Report
 """
 
 
+
     for column, value in statistics.items():
 
         html += f"""
@@ -269,6 +309,7 @@ KaizenKit CSV Quality Report
 """
 
 
+
     html += """
 
 </table>
@@ -279,6 +320,7 @@ KaizenKit CSV Quality Report
 </html>
 
 """
+
 
 
     with open(

@@ -1,4 +1,5 @@
 import os
+import webbrowser
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -34,6 +35,7 @@ from kaizenkit_csv.utils.column_analyzer import (
 
 from kaizenkit_csv.utils.report_generator import (
     generate_html_report,
+    create_report_path,
 )
 
 
@@ -490,7 +492,6 @@ class MainWindow(QWidget):
         self.table.resizeColumnsToContents()
 
 
-
     def export_report(self):
 
         if self.df is None:
@@ -504,14 +505,9 @@ class MainWindow(QWidget):
             return
 
 
-
-        output_path = os.path.join(
-            os.path.dirname(
-                self.current_file_path
-            ),
-            "KaizenKit_CSV_Report.html"
+        output_path = create_report_path(
+            self.current_file_path
         )
-
 
 
         columns = analyze_columns(
@@ -541,11 +537,13 @@ class MainWindow(QWidget):
         )
 
 
+        webbrowser.open(
+            output_path
+        )
+
 
         QMessageBox.information(
             self,
             "完了",
             f"品質レポートを出力しました。\n\n{output_path}"
-        )
-
-        
+        ) 
