@@ -1,136 +1,140 @@
+import os
+
 from PySide6.QtWidgets import (
-    QMainWindow,
     QWidget,
     QVBoxLayout,
     QPushButton,
     QLabel,
+    QMessageBox,
     QTableWidget,
     QTableWidgetItem,
-    QMessageBox,
 )
 
-from kaizenkit_csv.utils.file_manager import (
-    open_csv,
-    save_csv,
-)
-
-from kaizenkit_csv.utils.csv_processor import (
-    remove_duplicates,
-)
+from kaizenkit_csv.config.app_info import APP_NAME, VERSION
+from kaizenkit_csv.utils.file_manager import open_csv
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QWidget):
+
     def __init__(self):
         super().__init__()
 
+        self.setWindowTitle(APP_NAME)
+        self.resize(1000, 700)
+
         self.df = None
 
-        self.setWindowTitle("KaizenKit CSV")
-        self.resize(900, 600)
+        layout = QVBoxLayout()
 
-        central = QWidget()
-        self.setCentralWidget(central)
+        # タイトル
+        title = QLabel(APP_NAME)
+        version = QLabel(f"Version {VERSION}")
 
-        layout = QVBoxLayout(central)
-
-        # アプリタイトル・バージョン表示
-        title = QLabel(
-            "KaizenKit CSV\nVersion 0.1.0"
-        )
-        layout.addWidget(title)
-
-        # CSV読み込みボタン
+        # ボタン
         self.open_button = QPushButton("CSVを開く")
-        layout.addWidget(self.open_button)
-
-        # 重複削除ボタン
         self.remove_button = QPushButton("重複削除")
-        layout.addWidget(self.remove_button)
-
-        # CSV保存ボタン
         self.save_button = QPushButton("CSV保存")
+
+        # CSV情報
+        info_title = QLabel("CSV情報")
+
+        self.file_name_label = QLabel(
+            "ファイル名：-"
+        )
+
+        self.row_count_label = QLabel(
+            "行数：-"
+        )
+
+        self.column_count_label = QLabel(
+            "列数：-"
+        )
+
+        # テーブル
+        self.table = QTableWidget()
+
+        # 配置
+        layout.addWidget(title)
+        layout.addWidget(version)
+
+        layout.addWidget(self.open_button)
+        layout.addWidget(self.remove_button)
         layout.addWidget(self.save_button)
 
-        # CSV表示テーブル
-        self.table = QTableWidget()
+        layout.addWidget(info_title)
+        layout.addWidget(self.file_name_label)
+        layout.addWidget(self.row_count_label)
+        layout.addWidget(self.column_count_label)
+
         layout.addWidget(self.table)
+
+        self.setLayout(layout)
+
 
         # イベント接続
         self.open_button.clicked.connect(
             self.open_csv_file
         )
 
-        self.remove_button.clicked.connect(
-            self.remove_duplicates
-        )
-
-        self.save_button.clicked.connect(
-            self.save_csv_file
-        )
-
 
     def open_csv_file(self):
-        self.df = open_csv(self)
 
-        if self.df is None:
+        df, file_path = open_csv(self)
+
+
+        if df is None:
+
             QMessageBox.warning(
                 self,
                 "読み込みエラー",
-                "CSVファイルを読み込めませんでした。",
+                "CSVファイルを読み込めませんでした。"
             )
+
             return
 
-        self.display_dataframe()
+
+        self.df = df
 
 
-    def remove_duplicates(self):
-        if self.df is None:
-            return
+        # CSV情報更新
 
-        self.df = remove_duplicates(self.df)
-
-        self.display_dataframe()
-
-
-    def save_csv_file(self):
-        if self.df is None:
-            QMessageBox.warning(
-                self,
-                "保存エラー",
-                "保存するCSVデータがありません。",
-            )
-            return
-
-        result = save_csv(
-            self,
-            self.df
+        self.file_name_label.setText(
+            f"ファイル名：{os.path.basename(file_path)}"
         )
 
-        if result:
-            QMessageBox.information(
-                self,
-                "保存完了",
-                "CSVを保存しました。",
-            )
+
+        self.row_count_label.setText(
+            f"行数：{len(df)}"
+        )
 
 
-    def display_dataframe(self):
+        self.column_count_label.setText(
+            f"列数：{len(df.columns)}"
+        )
+
+
+        # テーブル表示
+
         self.table.setRowCount(
-            len(self.df)
+            len(df)
         )
 
         self.table.setColumnCount(
-            len(self.df.columns)
+            len(df.columns)
         )
+
 
         self.table.setHorizontalHeaderLabels(
-            self.df.columns.tolist()
+            df.columns.tolist()
         )
 
-        for row in range(len(self.df)):
-            for col in range(len(self.df.columns)):
+
+        for row in range(len(df)):
+
+            for col in range(len(df.columns)):
+
                 item = QTableWidgetItem(
-                    str(self.df.iat[row, col])
+                    str(df.iat[row, col])
                 )
 
                 self.table.setItem(
@@ -138,5 +142,3 @@ class MainWindow(QMainWindow):
                     col,
                     item
                 )
-
-        self.table.resizeColumnsToContents()
