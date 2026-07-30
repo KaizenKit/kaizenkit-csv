@@ -10,76 +10,291 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
 )
 
-from kaizenkit_csv.config.app_info import APP_NAME, VERSION
-from kaizenkit_csv.utils.file_manager import open_csv
+from kaizenkit_csv.config.app_info import (
+    APP_NAME,
+    VERSION,
+)
+
+from kaizenkit_csv.utils.file_manager import (
+    open_csv,
+)
+
+from kaizenkit_csv.utils.data_analyzer import (
+    analyze_missing,
+    analyze_duplicates,
+)
+
+from kaizenkit_csv.utils.statistics import (
+    analyze_numeric_columns,
+)
+
+from kaizenkit_csv.utils.column_analyzer import (
+    analyze_columns,
+)
+
+from kaizenkit_csv.utils.report_generator import (
+    generate_html_report,
+)
+
 
 
 class MainWindow(QWidget):
 
+
     def __init__(self):
+
         super().__init__()
 
-        self.setWindowTitle(APP_NAME)
-        self.resize(1000, 700)
+
+        self.setWindowTitle(
+            APP_NAME
+        )
+
+
+        self.resize(
+            1100,
+            900
+        )
+
 
         self.df = None
 
+        self.current_file_path = None
+
+
         layout = QVBoxLayout()
 
+
+
+        # --------------------
         # タイトル
-        title = QLabel(APP_NAME)
-        version = QLabel(f"Version {VERSION}")
+        # --------------------
 
+        title = QLabel(
+            APP_NAME
+        )
+
+
+        version = QLabel(
+            f"Version {VERSION}"
+        )
+
+
+
+        # --------------------
         # ボタン
-        self.open_button = QPushButton("CSVを開く")
-        self.remove_button = QPushButton("重複削除")
-        self.save_button = QPushButton("CSV保存")
+        # --------------------
 
+        self.open_button = QPushButton(
+            "CSVを開く"
+        )
+
+
+        self.remove_button = QPushButton(
+            "重複削除"
+        )
+
+
+        self.save_button = QPushButton(
+            "CSV保存"
+        )
+
+
+        self.report_button = QPushButton(
+            "品質レポート出力"
+        )
+
+
+
+        # --------------------
         # CSV情報
-        info_title = QLabel("CSV情報")
+        # --------------------
+
+        info_title = QLabel(
+            "CSV情報"
+        )
+
 
         self.file_name_label = QLabel(
             "ファイル名：-"
         )
 
+
         self.row_count_label = QLabel(
             "行数：-"
         )
+
 
         self.column_count_label = QLabel(
             "列数：-"
         )
 
-        # テーブル
+
+
+        # --------------------
+        # データ品質
+        # --------------------
+
+        quality_title = QLabel(
+            "データ品質"
+        )
+
+
+        self.missing_label = QLabel(
+            "欠損セル数：-"
+        )
+
+
+        self.duplicate_label = QLabel(
+            "重複行数：-"
+        )
+
+
+
+        # --------------------
+        # 列分析
+        # --------------------
+
+        column_title = QLabel(
+            "列分析"
+        )
+
+
+        self.column_table = QTableWidget()
+
+
+        self.column_table.setColumnCount(
+            5
+        )
+
+
+        self.column_table.setHorizontalHeaderLabels(
+            [
+                "No",
+                "列名",
+                "データ型",
+                "欠損数",
+                "ユニーク数",
+            ]
+        )
+                # --------------------
+        # 数値統計
+        # --------------------
+
+        statistics_title = QLabel(
+            "数値統計"
+        )
+
+
+        self.statistics_table = QTableWidget()
+
+
+        self.statistics_table.setColumnCount(
+            5
+        )
+
+
+        self.statistics_table.setHorizontalHeaderLabels(
+            [
+                "列名",
+                "最小値",
+                "最大値",
+                "平均値",
+                "中央値",
+            ]
+        )
+
+
+
+        # --------------------
+        # CSV表示
+        # --------------------
+
         self.table = QTableWidget()
 
-        # 配置
-        layout.addWidget(title)
-        layout.addWidget(version)
-
-        layout.addWidget(self.open_button)
-        layout.addWidget(self.remove_button)
-        layout.addWidget(self.save_button)
-
-        layout.addWidget(info_title)
-        layout.addWidget(self.file_name_label)
-        layout.addWidget(self.row_count_label)
-        layout.addWidget(self.column_count_label)
-
-        layout.addWidget(self.table)
-
-        self.setLayout(layout)
 
 
-        # イベント接続
+        # --------------------
+        # レイアウト配置
+        # --------------------
+
+        widgets = [
+
+            title,
+
+            version,
+
+
+            self.open_button,
+
+            self.remove_button,
+
+            self.save_button,
+
+            self.report_button,
+
+
+            info_title,
+
+            self.file_name_label,
+
+            self.row_count_label,
+
+            self.column_count_label,
+
+
+            quality_title,
+
+            self.missing_label,
+
+            self.duplicate_label,
+
+
+            column_title,
+
+            self.column_table,
+
+
+            statistics_title,
+
+            self.statistics_table,
+
+
+            self.table,
+
+        ]
+
+
+        for widget in widgets:
+
+            layout.addWidget(
+                widget
+            )
+
+
+        self.setLayout(
+            layout
+        )
+
+
+
+        # --------------------
+        # イベント設定
+        # --------------------
+
         self.open_button.clicked.connect(
             self.open_csv_file
         )
 
 
+        self.report_button.clicked.connect(
+            self.export_report
+        )
     def open_csv_file(self):
 
-        df, file_path = open_csv(self)
+        df, file_path = open_csv(
+            self
+        )
 
 
         if df is None:
@@ -93,10 +308,16 @@ class MainWindow(QWidget):
             return
 
 
+
         self.df = df
 
+        self.current_file_path = file_path
 
-        # CSV情報更新
+
+
+        # --------------------
+        # CSV情報
+        # --------------------
 
         self.file_name_label.setText(
             f"ファイル名：{os.path.basename(file_path)}"
@@ -113,11 +334,133 @@ class MainWindow(QWidget):
         )
 
 
-        # テーブル表示
+
+        # --------------------
+        # データ品質
+        # --------------------
+
+        self.missing_label.setText(
+            f"欠損セル数：{analyze_missing(df)}"
+        )
+
+
+        self.duplicate_label.setText(
+            f"重複行数：{analyze_duplicates(df)}"
+        )
+
+
+
+        # --------------------
+        # 列分析
+        # --------------------
+
+        columns = analyze_columns(
+            df
+        )
+
+
+        self.column_table.clearContents()
+
+
+        self.column_table.setRowCount(
+            len(columns)
+        )
+
+
+        for row, item in enumerate(columns):
+
+            values = [
+
+                item["no"],
+
+                item["column"],
+
+                item["dtype"],
+
+                item["missing"],
+
+                item["unique"],
+
+            ]
+
+
+            for col, value in enumerate(values):
+
+                self.column_table.setItem(
+                    row,
+                    col,
+                    QTableWidgetItem(
+                        str(value)
+                    )
+                )
+
+
+
+        self.column_table.resizeColumnsToContents()
+
+
+
+        # --------------------
+        # 数値統計
+        # --------------------
+
+        statistics = analyze_numeric_columns(
+            df
+        )
+
+
+        self.statistics_table.clearContents()
+
+
+        self.statistics_table.setRowCount(
+            len(statistics)
+        )
+
+
+        for row, (column, value) in enumerate(statistics.items()):
+
+            values = [
+
+                column,
+
+                value["min"],
+
+                value["max"],
+
+                value["mean"],
+
+                value["median"],
+
+            ]
+
+
+            for col, item in enumerate(values):
+
+                self.statistics_table.setItem(
+                    row,
+                    col,
+                    QTableWidgetItem(
+                        str(item)
+                    )
+                )
+
+
+
+        self.statistics_table.resizeColumnsToContents()
+
+
+
+        # --------------------
+        # CSV表表示
+        # --------------------
+
+        self.table.clear()
+
 
         self.table.setRowCount(
             len(df)
         )
+
 
         self.table.setColumnCount(
             len(df.columns)
@@ -129,16 +472,80 @@ class MainWindow(QWidget):
         )
 
 
+
         for row in range(len(df)):
 
             for col in range(len(df.columns)):
 
-                item = QTableWidgetItem(
-                    str(df.iat[row, col])
-                )
-
                 self.table.setItem(
                     row,
                     col,
-                    item
+                    QTableWidgetItem(
+                        str(df.iat[row, col])
+                    )
                 )
+
+
+
+        self.table.resizeColumnsToContents()
+
+
+
+    def export_report(self):
+
+        if self.df is None:
+
+            QMessageBox.warning(
+                self,
+                "エラー",
+                "先にCSVを開いてください。"
+            )
+
+            return
+
+
+
+        output_path = os.path.join(
+            os.path.dirname(
+                self.current_file_path
+            ),
+            "KaizenKit_CSV_Report.html"
+        )
+
+
+
+        columns = analyze_columns(
+            self.df
+        )
+
+
+        statistics = analyze_numeric_columns(
+            self.df
+        )
+
+
+        generate_html_report(
+            self.df,
+            os.path.basename(
+                self.current_file_path
+            ),
+            columns,
+            analyze_missing(
+                self.df
+            ),
+            analyze_duplicates(
+                self.df
+            ),
+            statistics,
+            output_path,
+        )
+
+
+
+        QMessageBox.information(
+            self,
+            "完了",
+            f"品質レポートを出力しました。\n\n{output_path}"
+        )
+
+        
