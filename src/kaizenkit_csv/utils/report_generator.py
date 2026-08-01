@@ -2,7 +2,6 @@ from datetime import datetime
 import os
 
 
-
 def create_report_path(
     csv_path
 ):
@@ -12,27 +11,22 @@ def create_report_path(
         "reports"
     )
 
-
     os.makedirs(
         report_dir,
         exist_ok=True
     )
 
-
     base_name = os.path.splitext(
         os.path.basename(csv_path)
     )[0]
-
 
     timestamp = datetime.now().strftime(
         "%Y%m%d_%H%M%S"
     )
 
-
     report_name = (
         f"{base_name}_report_{timestamp}.html"
     )
-
 
     return os.path.join(
         report_dir,
@@ -40,7 +34,74 @@ def create_report_path(
     )
 
 
+def generate_quality_comment(
+    missing,
+    duplicates,
+):
+    """
+    データ品質コメントを生成する
+    """
 
+    if missing == 0 and duplicates == 0:
+        return (
+            "データ品質は良好です。"
+            "欠損値・重複データは確認されませんでした。"
+        )
+
+    if missing > 0 and duplicates == 0:
+        return (
+            "欠損データが見つかりました。"
+            "分析前に補完または削除を推奨します。"
+        )
+
+    if missing == 0 and duplicates > 0:
+        return (
+            "重複データが見つかりました。"
+            "集計結果へ影響する可能性があります。"
+        )
+
+    return (
+        "欠損データと重複データが確認されました。"
+        "分析前にデータクリーニングを推奨します。"
+    )
+
+
+def generate_quality_score(
+    missing,
+    duplicates,
+):
+    """
+    データ品質スコア生成
+    """
+
+    if missing == 0 and duplicates == 0:
+        return (
+            "★★★★★",
+            "非常に良好"
+        )
+
+    if missing == 0 and duplicates <= 10:
+        return (
+            "★★★★☆",
+            "概ね良好"
+        )
+
+    if missing <= 10 and duplicates <= 10:
+        return (
+            "★★★☆☆",
+            "軽微な修正が必要"
+        )
+
+    if missing > 10 or duplicates > 10:
+        return (
+            "★★☆☆☆",
+            "データ確認を推奨"
+        )
+
+    return (
+        "★☆☆☆☆",
+        "品質改善が必要"
+    )
 
 
 def generate_html_report(
@@ -52,6 +113,17 @@ def generate_html_report(
     statistics,
     output_path,
 ):
+
+    quality_comment = generate_quality_comment(
+        missing,
+        duplicates,
+    )
+
+    score, score_text = generate_quality_score(
+        missing,
+        duplicates,
+    )
+
 
     html = f"""
 <!DOCTYPE html>
@@ -70,54 +142,35 @@ KaizenKit CSV Report
 <style>
 
 body {{
-
     font-family:
     Arial,
     sans-serif;
 
     margin:40px;
-
 }}
-
 
 h1 {{
-
     color:#333;
-
 }}
 
-
 table {{
-
     border-collapse:
     collapse;
 
-    width:
-    100%;
-
+    width:100%;
 }}
-
 
 th, td {{
+    border:1px solid #999;
 
-    border:
-    1px solid #999;
-
-    padding:
-    8px;
-
+    padding:8px;
 }}
 
-
 th {{
-
-    background:
-    #eee;
-
+    background:#eee;
 }}
 
 </style>
-
 
 </head>
 
@@ -134,7 +187,6 @@ KaizenKit CSV Quality Report
 作成日時：
 {datetime.now()}
 </p>
-
 
 
 <h2>
@@ -172,7 +224,6 @@ KaizenKit CSV Quality Report
 
 
 
-
 <h2>
 データ品質
 </h2>
@@ -202,6 +253,28 @@ KaizenKit CSV Quality Report
 
 
 
+<h2>
+総合評価
+</h2>
+
+
+<p>
+{score}
+&nbsp;
+{score_text}
+</p>
+
+
+
+<h2>
+品質コメント
+</h2>
+
+
+<p>
+{quality_comment}
+</p>
+
 
 
 <h2>
@@ -213,22 +286,14 @@ KaizenKit CSV Quality Report
 
 
 <tr>
-
 <th>No</th>
-
 <th>列名</th>
-
 <th>型</th>
-
 <th>欠損</th>
-
 <th>ユニーク数</th>
-
-
 </tr>
 
 """
-
 
 
     for item in columns:
@@ -247,17 +312,14 @@ KaizenKit CSV Quality Report
 
 <td>{item["unique"]}</td>
 
-
 </tr>
 
 """
 
 
-
     html += """
 
 </table>
-
 
 
 <h2>
@@ -269,22 +331,14 @@ KaizenKit CSV Quality Report
 
 
 <tr>
-
 <th>列名</th>
-
 <th>最小</th>
-
 <th>最大</th>
-
 <th>平均</th>
-
 <th>中央値</th>
-
-
 </tr>
 
 """
-
 
 
     for column, value in statistics.items():
@@ -303,11 +357,9 @@ KaizenKit CSV Quality Report
 
 <td>{value["median"]}</td>
 
-
 </tr>
 
 """
-
 
 
     html += """
@@ -320,7 +372,6 @@ KaizenKit CSV Quality Report
 </html>
 
 """
-
 
 
     with open(
