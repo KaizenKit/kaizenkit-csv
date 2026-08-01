@@ -294,18 +294,18 @@ class MainWindow(QWidget):
         )
     def open_csv_file(self):
 
-        df, file_path = open_csv(
+        df, file_path, error= open_csv(
             self
         )
 
 
-        if df is None:
+        if error:
 
             QMessageBox.warning(
-                self,
-                "読み込みエラー",
-                "CSVファイルを読み込めませんでした。"
-            )
+            self,
+            "読み込みエラー",
+            error
+        )
 
             return
 
@@ -520,26 +520,44 @@ class MainWindow(QWidget):
         )
 
 
-        generate_html_report(
-            self.df,
-            os.path.basename(
-                self.current_file_path
-            ),
-            columns,
-            analyze_missing(
-                self.df
-            ),
-            analyze_duplicates(
-                self.df
-            ),
-            statistics,
-            output_path,
-        )
+        try:
+
+            generate_html_report(
+                self.df,
+                os.path.basename(
+                    self.current_file_path
+                ),
+                columns,
+                analyze_missing(
+                    self.df
+                ),
+                analyze_duplicates(
+                    self.df
+                ),
+                statistics,
+                output_path,
+            )
+
+        except Exception as e:
+
+            QMessageBox.warning(
+                self,
+                "レポート生成エラー",
+                f"レポート作成中にエラーが発生しました。\n\n{e}"
+            )
+
+            return
 
 
-        webbrowser.open(
-            output_path
-        )
+        try:
+
+            webbrowser.open(
+                output_path
+            )
+
+        except Exception:
+
+            pass
 
 
         QMessageBox.information(

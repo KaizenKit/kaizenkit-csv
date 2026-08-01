@@ -142,33 +142,151 @@ KaizenKit CSV Report
 <style>
 
 body {{
+
     font-family:
-    Arial,
+    "Segoe UI",
+    "Meiryo",
     sans-serif;
 
     margin:40px;
+
+    color:#333;
+
+    background:#fafafa;
+
 }}
+
 
 h1 {{
-    color:#333;
+
+    color:#1f2937;
+
+    border-bottom:
+    3px solid #2563eb;
+
+    padding-bottom:
+    10px;
+
 }}
 
+
+h2 {{
+
+    margin-top:
+    35px;
+
+    color:#374151;
+
+    border-left:
+    6px solid #2563eb;
+
+    padding-left:
+    10px;
+
+}}
+
+
 table {{
+
     border-collapse:
     collapse;
 
-    width:100%;
+    width:
+    100%;
+
+    background:white;
+
+    margin-top:
+    10px;
+
 }}
 
-th, td {{
-    border:1px solid #999;
-
-    padding:8px;
-}}
 
 th {{
-    background:#eee;
+
+    background:#e5e7eb;
+
+    font-weight:bold;
+
 }}
+
+
+th, td {{
+
+    border:
+    1px solid #d1d5db;
+
+    padding:
+    10px;
+
+    text-align:left;
+
+}}
+
+
+tr:nth-child(even){{
+
+    background:#f9fafb;
+
+}}
+.score-card {{
+
+    background:white;
+
+    border-radius:
+    8px;
+
+    padding:
+    20px;
+
+    margin-top:
+    10px;
+
+    border:
+    1px solid #ddd;
+
+    font-size:
+    18px;
+
+}}
+
+
+.score {{
+
+    font-size:
+    32px;
+
+    font-weight:
+    bold;
+
+    color:#2563eb;
+
+}}
+
+
+.comment-card {{
+
+    background:#eff6ff;
+
+    border-left:
+    6px solid #2563eb;
+
+    padding:
+    15px;
+
+    margin-top:
+    10px;
+
+}}
+
+
+.comment {{
+
+    margin:
+    0;
+
+}}
+
 
 </style>
 
@@ -187,6 +305,7 @@ KaizenKit CSV Quality Report
 作成日時：
 {datetime.now()}
 </p>
+
 
 
 <h2>
@@ -258,11 +377,23 @@ KaizenKit CSV Quality Report
 </h2>
 
 
-<p>
+<div class="score-card">
+
+<div class="score">
+
 {score}
-&nbsp;
+
+</div>
+
+
+<p>
+
 {score_text}
+
 </p>
+
+
+</div>
 
 
 
@@ -271,9 +402,15 @@ KaizenKit CSV Quality Report
 </h2>
 
 
-<p>
+<div class="comment-card">
+
+<p class="comment">
+
 {quality_comment}
+
 </p>
+
+</div>
 
 
 
@@ -286,16 +423,20 @@ KaizenKit CSV Quality Report
 
 
 <tr>
+
 <th>No</th>
+
 <th>列名</th>
+
 <th>型</th>
+
 <th>欠損</th>
+
 <th>ユニーク数</th>
+
 </tr>
 
-"""
-
-
+"""   
     for item in columns:
 
         html += f"""
@@ -322,20 +463,28 @@ KaizenKit CSV Quality Report
 </table>
 
 
+
 <h2>
 数値統計
 </h2>
+
 
 
 <table>
 
 
 <tr>
+
 <th>列名</th>
+
 <th>最小</th>
+
 <th>最大</th>
+
 <th>平均</th>
+
 <th>中央値</th>
+
 </tr>
 
 """
@@ -368,6 +517,7 @@ KaizenKit CSV Quality Report
 
 
 </body>
+
 
 </html>
 

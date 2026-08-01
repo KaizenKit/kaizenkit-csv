@@ -13,12 +13,33 @@ def open_csv(parent=None):
     )
 
     if not file_path:
-        return None, None
+        return None, None, "ファイルが選択されていません"
+
 
     try:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(
+            file_path,
+            encoding="utf-8"
+        )
 
-        return df, file_path
+        return df, file_path, None
 
-    except Exception:
-        return None, None
+
+    except UnicodeDecodeError:
+
+        try:
+            df = pd.read_csv(
+                file_path,
+                encoding="cp932"
+            )
+
+            return df, file_path, None
+
+
+        except Exception as e:
+            return None, None, str(e)
+
+
+    except Exception as e:
+
+        return None, None, str(e)
