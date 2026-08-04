@@ -30,16 +30,16 @@ KaizenKit CSVは、日々のCSV作業を効率化するWindows向けデスクト
 
 ## スクリーンショット
 
-（ここに画像を追加予定）
-
-### メイン画面
-
-![メイン画面](screenshots/main.png)
-
-
 ### CSV分析結果
 
-![分析画面](screenshots/analysis.png)
+![CSV分析結果](screenshots/csv-analysis.png)
+
+
+### 重複削除
+
+![重複削除前](screenshots/duplicate-remove before.png)
+
+![重複削除後](screenshots/duplicate-remove after.png)
 
 
 ### 品質レポート
