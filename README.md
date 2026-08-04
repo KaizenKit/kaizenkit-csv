@@ -37,9 +37,9 @@ KaizenKit CSVは、日々のCSV作業を効率化するWindows向けデスクト
 
 ### 重複削除
 
-![重複削除前](screenshots/duplicate-remove before.png)
+![重複削除前](screenshots/duplicate-remove-before.png)
 
-![重複削除後](screenshots/duplicate-remove after.png)
+![重複削除後](screenshots/duplicate-remove-after.png)
 
 
 ### 品質レポート
