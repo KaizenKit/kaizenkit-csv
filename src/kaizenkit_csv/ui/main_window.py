@@ -1,6 +1,8 @@
 import os
 import webbrowser
 
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -11,9 +13,13 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
 )
 
+from PySide6.QtGui import QIcon
+
 from kaizenkit_csv.config.app_info import (
     APP_NAME,
-    VERSION,
+    APP_VERSION,
+    APP_AUTHOR,
+    APP_DESCRIPTION,
 )
 
 from kaizenkit_csv.utils.file_manager import (
@@ -23,6 +29,10 @@ from kaizenkit_csv.utils.file_manager import (
 from kaizenkit_csv.utils.data_analyzer import (
     analyze_missing,
     analyze_duplicates,
+)
+
+from kaizenkit_csv.utils.csv_processor import (
+    remove_duplicates,
 )
 
 from kaizenkit_csv.utils.statistics import (
@@ -47,6 +57,15 @@ class MainWindow(QWidget):
 
         super().__init__()
 
+        icon_path = (
+        Path(__file__).resolve().parents[3]
+        / "assets"
+        / "icon.ico"
+        )
+
+        self.setWindowIcon(
+        QIcon(str(icon_path))
+        )
 
         self.setWindowTitle(
             APP_NAME
@@ -78,7 +97,7 @@ class MainWindow(QWidget):
 
 
         version = QLabel(
-            f"Version {VERSION}"
+            f"Version {APP_VERSION}"
         )
 
 
@@ -104,6 +123,10 @@ class MainWindow(QWidget):
 
         self.report_button = QPushButton(
             "品質レポート出力"
+        )
+
+        self.about_button = QPushButton(
+            "About"
         )
 
 
@@ -235,6 +258,8 @@ class MainWindow(QWidget):
 
             self.report_button,
 
+            self.about_button,
+
 
             info_title,
 
@@ -292,6 +317,45 @@ class MainWindow(QWidget):
         self.report_button.clicked.connect(
             self.export_report
         )
+
+        self.about_button.clicked.connect(
+        self.show_about
+        )
+
+        self.remove_button.clicked.connect(
+        self.remove_duplicate_rows
+        )
+
+    def update_table(self, df):
+
+        self.table.clear()
+
+        self.table.setRowCount(
+            len(df)
+        )
+
+        self.table.setColumnCount(
+            len(df.columns)
+        )
+
+        self.table.setHorizontalHeaderLabels(
+            df.columns.tolist()
+        )
+
+        for row in range(len(df)):
+
+            for col in range(len(df.columns)):
+
+                self.table.setItem(
+                    row,
+                    col,
+                    QTableWidgetItem(
+                        str(df.iat[row, col])
+                    )
+                )
+
+        self.table.resizeColumnsToContents()
+
     def open_csv_file(self):
 
         df, file_path, error= open_csv(
@@ -565,3 +629,82 @@ class MainWindow(QWidget):
             "完了",
             f"品質レポートを出力しました。\n\n{output_path}"
         ) 
+
+    def remove_duplicate_rows(self):
+
+        if self.df is None:
+
+            QMessageBox.warning(
+                self,
+                "エラー",
+                "先にCSVを開いてください。"
+            )
+
+            return
+
+
+        before = len(self.df)
+
+
+        try:
+
+            self.df = remove_duplicates(
+                self.df
+            )
+
+            self.update_table(
+                 self.df
+            )
+
+        except Exception as e:
+
+            QMessageBox.warning(
+                self,
+                "削除エラー",
+                str(e)
+            )
+
+            return
+
+
+        after = len(self.df)
+
+
+        self.row_count_label.setText(
+            f"行数：{after}"
+        )
+
+
+        self.duplicate_label.setText(
+            f"重複行数：0"
+        )
+
+        self.update_table(
+            self.df
+        )
+
+
+        QMessageBox.information(
+            self,
+            "完了",
+            f"重複削除しました。\n\n"
+            f"削除前：{before}行\n"
+            f"削除後：{after}行\n"
+            f"削除数：{before-after}行"
+        )
+
+    def show_about(self):
+
+        QMessageBox.information(
+            self,
+            "About",
+            f"""
+{APP_NAME}
+
+Version {APP_VERSION}
+
+{APP_DESCRIPTION}
+
+Developed by {APP_AUTHOR}
+"""
+        )

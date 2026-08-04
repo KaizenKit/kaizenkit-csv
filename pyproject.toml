@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "pandas>=3.0.5",
+    "pyinstaller>=6.21.0",
     "pyside6>=6.11.1",
 ]
