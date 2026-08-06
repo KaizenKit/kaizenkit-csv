@@ -146,7 +146,7 @@ KaizenKit CSVへの改善要望・不具合報告・ご意見を歓迎してい�
 
 気軽なご意見や利用後の感想はフィードバックフォームから送信できます。
 
-👉 [KaizenKit CSV フィードバックフォーム](GoogleフォームURL)
+👉 [KaizenKit CSV フィードバックフォーム](https://forms.gle/Bm5DX7xdH3eDdHKt6)
 
 ---
 
