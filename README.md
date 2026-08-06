@@ -52,6 +52,8 @@ KaizenKit CSVは、日々のCSV作業を効率化するWindows向けデスクト
 
 最新版はGitHub Releasesからダウンロードできます。
 
+👉 [最新版をダウンロード](https://github.com/KaizenKit/kaizenkit-csv/releases/latest)
+
 ## Windows版
 
 1. Releaseページを開く
@@ -117,23 +119,38 @@ Windows 10 / Windows 11
 
 ---
 
-# フィードバック
+## フィードバック
 
-KaizenKit CSVへの改善要望や不具合報告を歓迎しています。
+KaizenKit CSVへの改善要望・不具合報告・ご意見を歓迎しています。
 
-以下からお願いします。
-
-## GitHub Issue
-
-（Issue URLを追加）
-
-または
-
-## Googleフォーム
-
-（フォームURLを追加）
+いただいたフィードバックは、今後の機能改善や品質向上に活用します。
 
 ---
+
+### 🐞 不具合報告・機能要望
+
+不具合報告や新機能の提案はGitHub Issuesをご利用ください。
+
+👉 [GitHub Issues](https://github.com/KaizenKit/kaizenkit-csv/issues)
+
+以下の内容を投稿できます。
+
+- 🐞 バグ報告
+- ✨ 機能要望
+- 💡 改善提案
+- ❓ 質問
+
+---
+
+### 📝 ご意見・ご感想
+
+気軽なご意見や利用後の感想はフィードバックフォームから送信できます。
+
+👉 [KaizenKit CSV フィードバックフォーム](GoogleフォームURL)
+
+---
+
+皆様からのご意見をもとに、KaizenKit CSVをより使いやすいツールへ改善していきます。
 
 # 今後の予定
 
