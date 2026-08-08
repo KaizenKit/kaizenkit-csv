@@ -1,4 +1,5 @@
 import os
+import sys
 import webbrowser
 
 from pathlib import Path
@@ -24,6 +25,7 @@ from kaizenkit_csv.config.app_info import (
 
 from kaizenkit_csv.utils.file_manager import (
     open_csv,
+    save_csv,
 )
 
 from kaizenkit_csv.utils.data_analyzer import (
@@ -56,12 +58,18 @@ class MainWindow(QWidget):
     def __init__(self):
 
         super().__init__()
-
-        icon_path = (
-        Path(__file__).resolve().parents[3]
-        / "assets"
-        / "icon.ico"
-        )
+        if getattr(sys, "frozen", False):
+            icon_path = (
+                Path(sys._MEIPASS)
+                / "assets"
+                / "icon.ico"
+            )
+        else:
+            icon_path = (
+                Path(__file__).resolve().parents[3]
+                / "assets"
+                / "icon.ico"
+            )
 
         self.setWindowIcon(
         QIcon(str(icon_path))
@@ -313,6 +321,10 @@ class MainWindow(QWidget):
             self.open_csv_file
         )
 
+        self.save_button.clicked.connect(
+            self.save_csv_file
+        )
+
 
         self.report_button.clicked.connect(
             self.export_report
@@ -355,6 +367,43 @@ class MainWindow(QWidget):
                 )
 
         self.table.resizeColumnsToContents()
+    def save_csv_file(self):
+
+        if self.df is None:
+
+            QMessageBox.warning(
+                self,
+                "エラー",
+                "先にCSVを開いてください。"
+            )
+
+            return
+
+        try:
+
+            output_path = save_csv(
+                self.df,
+                self
+            )
+
+        except Exception as e:
+
+            QMessageBox.warning(
+                self,
+                "CSV保存エラー",
+                str(e)
+            )
+
+            return
+
+        if output_path is None:
+            return
+
+        QMessageBox.information(
+            self,
+            "完了",
+            f"CSVを保存しました。\n\n{output_path}"
+        )
 
     def open_csv_file(self):
 

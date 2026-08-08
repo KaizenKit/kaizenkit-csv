@@ -15,7 +15,6 @@ def open_csv(parent=None):
     if not file_path:
         return None, None, "ファイルが選択されていません"
 
-
     try:
         df = pd.read_csv(
             file_path,
@@ -23,7 +22,6 @@ def open_csv(parent=None):
         )
 
         return df, file_path, None
-
 
     except UnicodeDecodeError:
 
@@ -35,11 +33,39 @@ def open_csv(parent=None):
 
             return df, file_path, None
 
-
         except Exception as e:
             return None, None, str(e)
-
 
     except Exception as e:
 
         return None, None, str(e)
+
+
+def save_csv(df, parent=None):
+
+    file_path, _ = QFileDialog.getSaveFileName(
+        parent,
+        "CSVファイルを保存",
+        "",
+        "CSV Files (*.csv);;All Files (*)",
+    )
+
+    if not file_path:
+        return None
+
+    if not file_path.lower().endswith(".csv"):
+        file_path += ".csv"
+
+    try:
+        df.to_csv(
+            file_path,
+            index=False,
+            encoding="utf-8-sig"
+        )
+
+        return file_path
+
+    except Exception as e:
+        raise Exception(
+            f"CSV保存処理でエラーが発生しました: {e}"
+        )

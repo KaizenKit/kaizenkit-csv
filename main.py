@@ -12,11 +12,18 @@ from kaizenkit_csv.ui.main_window import MainWindow
 def main():
     app = QApplication(sys.argv)
 
-    icon_path = (
-        Path(__file__).parent
-        / "assets"
-        / "icon.ico"
-    )
+    if getattr(sys, "frozen", False):
+        icon_path = (
+            Path(sys._MEIPASS)
+            / "assets"
+            / "icon.ico"
+        )
+    else:
+        icon_path = (
+            Path(__file__).parent
+            / "assets"
+            / "icon.ico"
+        )
 
     app.setWindowIcon(
         QIcon(str(icon_path))
